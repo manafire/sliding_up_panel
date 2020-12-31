@@ -215,6 +215,9 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> with SingleTickerProvid
   AnimationController _ac;
 
   ScrollController _sc;
+
+  /// True when the list is scrolling; false if it's "locked" (e.g. at top
+  /// during a drag down)
   bool _scrollingEnabled = false;
   VelocityTracker _vt = new VelocityTracker();
 
