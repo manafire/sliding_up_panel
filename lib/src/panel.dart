@@ -164,6 +164,11 @@ class SlidingUpPanel extends StatefulWidget {
   /// Defaults to 0.0
   final double initialHeight;
 
+  /// If true, panel will listen to tap events and may close, fling, or open.
+  /// Default to true
+  // CUSTOM: Note: Added this to fix the panel closing on a tap action
+  final bool tapToClose;
+
   const SlidingUpPanel(
       {Key key,
       this.panel,
@@ -200,6 +205,7 @@ class SlidingUpPanel extends StatefulWidget {
       this.slideDirection = SlideDirection.UP,
       this.defaultPanelState = PanelState.CLOSED,
       this.initialHeight = 0.0,
+      this.tapToClose = true,
       this.header,
       this.footer})
       : assert(panel != null || panelBuilder != null),
@@ -473,6 +479,11 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> with SingleTickerProvid
 
     //check if the velocity is sufficient to constitute fling to end
     double visualVelocity = -v.pixelsPerSecond.dy / (widget.maxHeight - widget.minHeight);
+
+    // --- start CUSTOM
+    // Prevent panel from closing on tap
+    if (visualVelocity == 0 && !widget.tapToClose) return;
+    // --- end CUSTOM
 
     // reverse visual velocity to account for slide direction
     if (widget.slideDirection == SlideDirection.DOWN) visualVelocity = -visualVelocity;
