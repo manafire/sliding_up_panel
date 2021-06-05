@@ -361,7 +361,38 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> with SingleTickerProvid
                             ? Positioned(
                                 top: widget.slideDirection == SlideDirection.UP ? 0.0 : null,
                                 bottom: widget.slideDirection == SlideDirection.DOWN ? 0.0 : null,
-                                child: widget.header!,
+                                // The Wrapping GestureDetector is required to handle complexities with
+                                // the ListViews inside the SlidingUpPanel, specifically dragging by
+                                // grabbing onto the "header" regardless of ListView scroll position which
+                                // only initiates panel drag when it's at the top (offset = 0). However,
+                                // people may want to dismiss the panel by dragging the panel away.
+                                child: GestureDetector(
+                                  onVerticalDragUpdate: (DragUpdateDetails dragDetails) {
+                                    // If this child ListView is already at top, defer to default panel
+                                    // scrolling functionality.  Otherwise, if it has a scroll position,
+                                    // we need to intervene and force-feed the panel position back in.
+                                    if (_sc.hasClients && _sc.offset <= 0) return;
+
+                                    double dy = dragDetails.primaryDelta!;
+                                    double value = dy / (constraints.maxHeight);
+                                    // print('$dy / ${constraints.maxHeight} = $value');
+
+                                    // -= for SlideDirection.UP, otherwise should be +=
+                                    // panelController.panelPosition -= value;
+                                    double position = _ac.value - value;
+                                    position = position.clamp(0, 1);
+                                    // print('position: $position');
+                                    _ac.value = position;
+
+                                    // doesn't work for some reason
+                                    // panelController.animatePanelToPosition(position);
+                                  },
+                                  // transparent required for GestureDetector to kick-in
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    child: widget.header!,
+                                  ),
+                                ),
                               )
                             : Container(),
 
