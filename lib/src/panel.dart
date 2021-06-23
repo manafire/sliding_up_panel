@@ -475,6 +475,17 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> with SingleTickerProvid
 
   // handles the sliding gesture
   void _onGestureSlide(double dy) {
+    // reject the gesture if it doesn't match a certain threshold.
+    // I noticed that pushing on a button inside the panel causes the panel
+    // to slide a tiny bit when it should be locked. Assign a tiny threshold to
+    // try and counteract this.  Only do this if we're at the top.
+    // 0.6666~ and 1.333 seems to be the common minimum gestures reported in my
+    // print statements testing.
+    // print('DeltaY: $dy');
+    if (_sc.hasClients && _sc.offset == 0 && _isPanelOpen && dy.abs() < 1.34) return;
+    // print('DeltaY HIT: $dy -- ${_ac.value}');
+
+    //
     // only slide the panel if scrolling is not enabled
     if (!_scrollingEnabled) {
       if (widget.slideDirection == SlideDirection.UP)
